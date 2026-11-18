@@ -12,11 +12,8 @@ function updateProgressBar(progress) {
     const bar = document.getElementById('download-progress-bar');
     if (!wrapper || !bar) return;
 
-    if (progress.status === 'initiate') {
-        wrapper.classList.remove('d-none');
-    }
-
     if (progress.status === 'downloading') {
+        wrapper.classList.remove('d-none');
         const pct = Math.round(progress.progress);
         bar.style.width = `${pct}%`;
         bar.textContent = `${pct}%`;
@@ -35,7 +32,7 @@ async function loadModel(onProgress) {
 
     // const device = 'wasm';
     const device = (await navigator.gpu?.requestAdapter()) ? 'webgpu' : 'wasm';
-    console.log("using device "+device)
+    console.log("using device " + device);
     transcriber = await pipeline(
         'automatic-speech-recognition',
         MODEL_ID,
@@ -51,6 +48,7 @@ async function loadModel(onProgress) {
         }
     );
 
+    transcriber.device = device;
     return transcriber;
 }
 

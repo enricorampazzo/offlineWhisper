@@ -87,8 +87,21 @@ async function setup() {
         document.getElementById('model-download').classList.remove('d-none');
     }
 
-    await loadModel();
+    document.getElementById('model-loading').classList.remove('d-none');
+    const model = await loadModel();
+    document.getElementById('model-loading').classList.add('d-none');
     document.getElementById('model-download').classList.add('d-none');
+
+    const notice = document.getElementById('device-notice');
+    const noticeText = document.getElementById('device-notice-text');
+    if (model.device === 'webgpu') {
+        notice.classList.add('alert-success');
+        noticeText.textContent = 'Good news — transcription will use your GPU for better performance.';
+    } else {
+        notice.classList.add('alert-warning');
+        noticeText.textContent = 'Transcription might take a while on this device.';
+    }
+    notice.classList.remove('d-none');
 
     showFilePicker();
 }
