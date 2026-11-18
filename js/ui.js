@@ -37,8 +37,8 @@ async function extractAudioTrack(file) {
 
     const ffmpeg = new FFmpeg();
     await ffmpeg.load({
-        coreURL: '/js/lib/ffmpeg/ffmpeg-core.js',
-        wasmURL: '/js/lib/ffmpeg/ffmpeg-core.wasm',
+        coreURL: new URL('./lib/ffmpeg/ffmpeg-core.js', import.meta.url).href,
+        wasmURL: new URL('./lib/ffmpeg/ffmpeg-core.wasm', import.meta.url).href,
     });
 
     const ext = file.name.substring(file.name.lastIndexOf('.'));
@@ -70,7 +70,7 @@ async function onTranscribe(file) {
 
     const blob = new Blob([srt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const filename = file.name.replace(/\.[^.]+$/, '.srt');
+    const filename = file.name.replace(/\.[^.]+$/, '-transcription.txt');
 
     downloadBtn.href = url;
     downloadBtn.download = filename;
