@@ -91,6 +91,25 @@ async function setup() {
     const model = await loadModel();
     document.getElementById('model-loading').classList.add('d-none');
     document.getElementById('model-download').classList.add('d-none');
+    document.getElementById('offline-ready').classList.remove('d-none');
+
+    setTimeout(() => {
+        ['offline-ready', 'device-notice'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el || el.classList.contains('d-none')) return;
+            el.classList.add('d-none');
+            const checkmark = document.createElement('span');
+            checkmark.textContent = '✅';
+            checkmark.title = 'Click to expand';
+            checkmark.style.cursor = 'pointer';
+            checkmark.style.fontSize = '1.25rem';
+            el.parentNode.insertBefore(checkmark, el);
+            checkmark.addEventListener('click', () => {
+                checkmark.remove();
+                el.classList.remove('d-none');
+            }, { once: true });
+        });
+    }, 5000);
 
     const notice = document.getElementById('device-notice');
     const noticeText = document.getElementById('device-notice-text');
