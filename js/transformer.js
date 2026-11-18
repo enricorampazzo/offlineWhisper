@@ -72,7 +72,13 @@ function toSRT(chunks) {
 }
 
 async function transcribe(audioData, onProgress) {
-    const model = await loadModel(onProgress);
+    let model
+    try {
+        model = await loadModel(onProgress);
+    }
+    catch (e) {
+        alert(e)
+    }
     const result = await model(audioData, {
         chunk_length_s: 30,
         stride_length_s: 5,
