@@ -3,7 +3,8 @@ import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transfo
 env.allowRemoteModels = true;
 env.useBrowserCache = true;
 
-const MODEL_ID = 'onnx-community/whisper-large-v3-ONNX';
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const MODEL_ID = isMobile ? 'onnx-community/whisper-medium-ONNX' : 'onnx-community/whisper-large-v3-ONNX';
 
 let transcriber = null;
 
