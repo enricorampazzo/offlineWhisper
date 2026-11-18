@@ -1,4 +1,4 @@
-import { loadModel, isModelCached, transcribe } from './transformer.js';
+import { loadModel, isModelCached, transcribe, MODEL_ID } from './transformer.js';
 import { fileTypeFromBlob } from 'https://esm.sh/file-type@19';
 
 function showFilePicker() {
@@ -87,6 +87,7 @@ async function setup() {
         document.getElementById('model-download').classList.remove('d-none');
     }
 
+    document.getElementById('model-loading-text').textContent = `Loading ${MODEL_ID}, please wait...`;
     document.getElementById('model-loading').classList.remove('d-none');
     const model = await loadModel();
     document.getElementById('model-loading').classList.add('d-none');

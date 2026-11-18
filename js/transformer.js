@@ -100,4 +100,4 @@ async function isModelCached() {
     return false;
 }
 
-export { loadModel, transcribe, isModelCached };
+export { loadModel, transcribe, isModelCached, MODEL_ID };
