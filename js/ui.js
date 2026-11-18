@@ -93,21 +93,40 @@ async function setup() {
     document.getElementById('model-download').classList.add('d-none');
     document.getElementById('offline-ready').classList.remove('d-none');
 
+    const minimize = (el) => {
+        el.classList.add('d-none');
+        const checkmark = document.createElement('span');
+        checkmark.textContent = '✅';
+        checkmark.title = 'Click to expand';
+        checkmark.style.cursor = 'pointer';
+        checkmark.style.fontSize = '1.25rem';
+        el.parentNode.insertBefore(checkmark, el);
+        checkmark.addEventListener('click', () => {
+            checkmark.remove();
+            el.classList.remove('d-none');
+        }, { once: true });
+    };
+
+    ['offline-ready', 'device-notice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-close')) {
+                return;
+            }
+            if (!el.classList.contains('d-none')) {
+                minimize(el);
+            }
+        });
+    });
+
     setTimeout(() => {
         ['offline-ready', 'device-notice'].forEach(id => {
             const el = document.getElementById(id);
-            if (!el || el.classList.contains('d-none')) return;
-            el.classList.add('d-none');
-            const checkmark = document.createElement('span');
-            checkmark.textContent = '✅';
-            checkmark.title = 'Click to expand';
-            checkmark.style.cursor = 'pointer';
-            checkmark.style.fontSize = '1.25rem';
-            el.parentNode.insertBefore(checkmark, el);
-            checkmark.addEventListener('click', () => {
-                checkmark.remove();
-                el.classList.remove('d-none');
-            }, { once: true });
+            if (!el || el.classList.contains('d-none')) {
+                return;
+            }
+            minimize(el);
         });
     }, 5000);
 
