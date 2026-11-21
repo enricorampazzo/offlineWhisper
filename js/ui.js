@@ -1,4 +1,4 @@
-import { loadModel, isModelCached, transcribe, MODEL_ID } from './transformer.js';
+import { loadModel, isModelCached, transcribe, getModelToLoad, MODEL_ID } from './transformer.js';
 import { fileTypeFromBlob } from 'https://esm.sh/file-type@19';
 
 function showFilePicker() {
@@ -65,7 +65,7 @@ async function onTranscribe(file) {
     transcribeBtn.textContent = 'Transcribing...';
 
     const blobUrl = URL.createObjectURL(file);
-    const srt = await transcribe(blobUrl);
+    const srt = await transcribe(blobUrl, getModelToLoad());
     URL.revokeObjectURL(blobUrl);
 
     const blob = new Blob([srt], { type: 'text/plain' });
@@ -80,16 +80,42 @@ async function onTranscribe(file) {
     transcribeBtn.textContent = 'Transcribe';
 }
 
+const LOAD_TIMEOUT_MS = 60_000;
+
+async function loadModelWithFallback(modelName) {
+    const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), LOAD_TIMEOUT_MS)
+    );
+
+    try {
+        return await Promise.race([loadModel(null, modelName), timeout]);
+    } catch (err) {
+        if (err.message !== 'timeout') throw err;
+
+        const nextModel = await getModelToLoad();
+        if (!nextModel) throw new Error('No compatible model found for this device');
+
+        document.getElementById('model-loading-text').textContent =
+            `Switching to a smaller model (${nextModel}), please wait...`;
+        return loadModelWithFallback(nextModel);
+    }
+}
+
 async function setup() {
-    const cached = await isModelCached();
+    let modelToLoad = await getModelToLoad()
+    if(modelToLoad === null){
+        alert("Unfortunately, there's no transcription model that can be loaded on this device, as it is memory constrained")
+        return
+    }
+    const cached = await isModelCached(modelToLoad);
 
     if (!cached) {
         document.getElementById('model-download').classList.remove('d-none');
     }
 
-    document.getElementById('model-loading-text').textContent = `Loading ${MODEL_ID}, please wait...`;
+    document.getElementById('model-loading-text').textContent = `Loading ${modelToLoad}, please wait...`;
     document.getElementById('model-loading').classList.remove('d-none');
-    const model = await loadModel();
+    const model = await loadModelWithFallback(modelToLoad);
     document.getElementById('model-loading').classList.add('d-none');
     document.getElementById('model-download').classList.add('d-none');
     document.getElementById('offline-ready').classList.remove('d-none');

@@ -4,6 +4,9 @@ env.allowRemoteModels = true;
 env.useBrowserCache = true;
 
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const MODELS = ['onnx-community/whisper-large-v3-ONNX', 'onnx-community/whisper-medium-ONNX',
+    'onnx-community/whisper-small']
+const MODEL_LOADING_STATE_KEY = "MODEL_BEING_LOADED"
 const MODEL_ID = isMobile ? 'onnx-community/whisper-medium-ONNX' : 'onnx-community/whisper-large-v3-ONNX';
 
 let transcriber = null;
@@ -28,15 +31,14 @@ function updateProgressBar(progress) {
     }
 }
 
-async function loadModel(onProgress) {
+async function loadModel(onProgress, modelName) {
     if (transcriber) return transcriber;
-
-    // const device = 'wasm';
+    localStorage.setItem(MODEL_LOADING_STATE_KEY, modelName)
     const device = (await navigator.gpu?.requestAdapter()) ? 'webgpu' : 'wasm';
     console.log("using device " + device);
     transcriber = await pipeline(
         'automatic-speech-recognition',
-        MODEL_ID,
+        modelName,
         {
             device,
             dtype: 'q4',
@@ -72,14 +74,9 @@ function toSRT(chunks) {
         .join('\n');
 }
 
-async function transcribe(audioData, onProgress) {
-    let model
-    try {
-        model = await loadModel(onProgress);
-    }
-    catch (e) {
-        alert(e)
-    }
+async function transcribe(audioData, onProgress, modelName) {
+
+    let model = await loadModel(onProgress, modelName);
     const result = await model(audioData, {
         chunk_length_s: 30,
         stride_length_s: 5,
@@ -88,16 +85,32 @@ async function transcribe(audioData, onProgress) {
     return toSRT(result.chunks);
 }
 
-async function isModelCached() {
+async function isModelCached(modelId) {
     const cacheNames = await caches.keys();
     for (const name of cacheNames) {
         const cache = await caches.open(name);
         const keys = await cache.keys();
-        if (keys.some(req => req.url.includes(MODEL_ID))) {
+        if (keys.some(req => req.url.includes(modelId))) {
             return true;
         }
     }
     return false;
 }
 
-export { loadModel, transcribe, isModelCached, MODEL_ID };
+async function getModelToLoad(){
+    let lastAttemptedLoadModel = localStorage.getItem(MODEL_LOADING_STATE_KEY)
+    if(lastAttemptedLoadModel === null){
+        return isMobile ? MODELS[1] : MODELS[0]
+    } else {
+        let indexOf = MODELS.indexOf(lastAttemptedLoadModel)
+        if(indexOf + 1 === MODELS.length){
+            return null
+        }
+        return MODELS[indexOf + 1]
+    }
+
+}
+
+
+
+export { loadModel, transcribe, isModelCached, getModelToLoad, MODEL_ID };
