@@ -1,0 +1,22 @@
+{
+    "app_title": "Local Transcriber",
+    "app_description": "Transcribe your audio and video files privately — everything runs directly in your browser and your files never leave your device.",
+    "settings": "Settings",
+    "settings_close": "Close",
+    "reset_model_label": "Reset which model the app will try to load on next startup.",
+    "reset_model_btn": "Reset model selection",
+    "language_label": "Language",
+    "downloading_model": "Downloading model...",
+    "offline_ready": "I downloaded all I needed — feel free to go offline.",
+    "loading_model": "Loading {{model}}, please wait...",
+    "switching_model": "Switching to a smaller model ({{model}}), please wait...",
+    "no_model_error": "Unfortunately, there's no transcription model that can be loaded on this device, as it is memory constrained.",
+    "file_label": "Please select the file to transcribe",
+    "transcribe_btn": "Transcribe",
+    "download_btn": "Download transcription",
+    "extracting_audio": "Extracting audio...",
+    "transcribing": "Transcribing...",
+    "webgpu_notice": "Good news — transcription will use your GPU for better performance.",
+    "wasm_notice": "Transcription might take a while on this device.",
+    "kofi_link": "☕ If you find this useful, consider buying me a coffee"
+}

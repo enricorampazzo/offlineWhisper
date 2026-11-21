@@ -1,5 +1,14 @@
 import { loadModel, isModelCached, transcribe, getModelToLoad, MODEL_ID, MODEL_LOADING_STATE_KEY } from './transformer.js';
 import { fileTypeFromBlob } from 'https://esm.sh/file-type@19';
+import { t, changeLanguage, currentLanguage } from './i18n.js';
+
+function applyTranslations() {
+    document.title = t('app_title');
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+    });
+    document.getElementById('language-select').value = currentLanguage();
+}
 
 function showFilePicker() {
     document.getElementById('file-picker').classList.remove('d-none');
@@ -23,14 +32,13 @@ async function inspect() {
         return extractAudioTrack(file);
     }
 
-    // audio/*, or unknown (let transcribe handle it)
     return onTranscribe(file);
 }
 
 async function extractAudioTrack(file) {
     const transcribeBtn = document.getElementById('transcribe-btn');
     transcribeBtn.disabled = true;
-    transcribeBtn.textContent = 'Extracting audio...';
+    transcribeBtn.textContent = t('extracting_audio');
 
     const { FFmpeg } = await import('./lib/ffmpeg/index.js');
     const { fetchFile } = await import('https://unpkg.com/@ffmpeg/util@0.12.1/dist/esm/index.js');
@@ -62,10 +70,10 @@ async function onTranscribe(file) {
     const downloadBtn = document.getElementById('download-btn');
 
     transcribeBtn.disabled = true;
-    transcribeBtn.textContent = 'Transcribing...';
+    transcribeBtn.textContent = t('transcribing');
 
     const blobUrl = URL.createObjectURL(file);
-    const srt = await transcribe(blobUrl, getModelToLoad());
+    const srt = await transcribe(blobUrl);
     URL.revokeObjectURL(blobUrl);
 
     const blob = new Blob([srt], { type: 'text/plain' });
@@ -77,7 +85,7 @@ async function onTranscribe(file) {
     downloadBtn.classList.remove('d-none');
 
     transcribeBtn.disabled = false;
-    transcribeBtn.textContent = 'Transcribe';
+    transcribeBtn.textContent = t('transcribe_btn');
 }
 
 const LOAD_TIMEOUT_MS = 60_000;
@@ -93,19 +101,19 @@ async function loadModelWithFallback(modelName) {
         if (err.message !== 'timeout') throw err;
 
         const nextModel = await getModelToLoad();
-        if (!nextModel) throw new Error('No compatible model found for this device');
+        if (!nextModel) throw new Error(t('no_model_error'));
 
         document.getElementById('model-loading-text').textContent =
-            `Switching to a smaller model (${nextModel}), please wait...`;
+            t('switching_model', { model: nextModel });
         return loadModelWithFallback(nextModel);
     }
 }
 
 async function setup() {
-    let modelToLoad = await getModelToLoad()
-    if(modelToLoad === null){
-        alert("Unfortunately, there's no transcription model that can be loaded on this device, as it is memory constrained")
-        return
+    let modelToLoad = await getModelToLoad();
+    if (modelToLoad === null) {
+        alert(t('no_model_error'));
+        return;
     }
     const cached = await isModelCached(modelToLoad);
 
@@ -113,7 +121,7 @@ async function setup() {
         document.getElementById('model-download').classList.remove('d-none');
     }
 
-    document.getElementById('model-loading-text').textContent = `Loading ${modelToLoad}, please wait...`;
+    document.getElementById('model-loading-text').textContent = t('loading_model', { model: modelToLoad });
     document.getElementById('model-loading').classList.remove('d-none');
     const model = await loadModelWithFallback(modelToLoad);
     document.getElementById('model-loading').classList.add('d-none');
@@ -138,21 +146,15 @@ async function setup() {
         const el = document.getElementById(id);
         if (!el) return;
         el.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-close')) {
-                return;
-            }
-            if (!el.classList.contains('d-none')) {
-                minimize(el);
-            }
+            if (e.target.closest('.btn-close')) return;
+            if (!el.classList.contains('d-none')) minimize(el);
         });
     });
 
     setTimeout(() => {
         ['offline-ready', 'device-notice'].forEach(id => {
             const el = document.getElementById(id);
-            if (!el || el.classList.contains('d-none')) {
-                return;
-            }
+            if (!el || el.classList.contains('d-none')) return;
             minimize(el);
         });
     }, 5000);
@@ -161,18 +163,32 @@ async function setup() {
     const noticeText = document.getElementById('device-notice-text');
     if (model.device === 'webgpu') {
         notice.classList.add('alert-success');
-        noticeText.textContent = 'Good news — transcription will use your GPU for better performance.';
+        noticeText.textContent = t('webgpu_notice');
     } else {
         notice.classList.add('alert-warning');
-        noticeText.textContent = 'Transcription might take a while on this device.';
+        noticeText.textContent = t('wasm_notice');
     }
     notice.classList.remove('d-none');
 
     showFilePicker();
 }
 
-document.getElementById('reset-model-btn').addEventListener('click', () => {
-    localStorage.removeItem(MODEL_LOADING_STATE_KEY);
-});
+function init() {
+    applyTranslations();
+    setup();
 
-document.addEventListener('DOMContentLoaded', setup);
+    document.getElementById('reset-model-btn').addEventListener('click', () => {
+        localStorage.removeItem(MODEL_LOADING_STATE_KEY);
+    });
+
+    document.getElementById('language-select').addEventListener('change', async (e) => {
+        await changeLanguage(e.target.value);
+        applyTranslations();
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

@@ -1,0 +1,22 @@
+{
+    "app_title": "Trascrittore Locale",
+    "app_description": "Trascrivi i tuoi file audio e video in modo privato — tutto viene eseguito direttamente nel browser e i tuoi file non lasciano mai il tuo dispositivo.",
+    "settings": "Impostazioni",
+    "settings_close": "Chiudi",
+    "reset_model_label": "Reimposta quale modello l'app tenterà di caricare al prossimo avvio.",
+    "reset_model_btn": "Reimposta selezione modello",
+    "language_label": "Lingua",
+    "downloading_model": "Download del modello in corso...",
+    "offline_ready": "Ho scaricato tutto il necessario — puoi andare offline.",
+    "loading_model": "Caricamento di {{model}}, attendere prego...",
+    "switching_model": "Passaggio a un modello più piccolo ({{model}}), attendere prego...",
+    "no_model_error": "Purtroppo nessun modello di trascrizione può essere caricato su questo dispositivo, che ha memoria insufficiente.",
+    "file_label": "Seleziona il file da trascrivere",
+    "transcribe_btn": "Trascrivi",
+    "download_btn": "Scarica trascrizione",
+    "extracting_audio": "Estrazione audio in corso...",
+    "transcribing": "Trascrizione in corso...",
+    "webgpu_notice": "Ottima notizia — la trascrizione utilizzerà la tua GPU per prestazioni migliori.",
+    "wasm_notice": "La trascrizione potrebbe richiedere del tempo su questo dispositivo.",
+    "kofi_link": "☕ Se lo trovi utile, offrimi un caffè"
+}

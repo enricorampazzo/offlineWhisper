@@ -3,28 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline Whisper</title>
+    <title>Local Transcriber</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
     <nav class="navbar bg-body-tertiary border-bottom px-3">
-        <span class="navbar-brand mb-0 h1">Offline Whisper</span>
-        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#settings-modal">⚙ Settings</button>
+        <span class="navbar-brand mb-0 h1" data-i18n="app_title">Local Transcriber</span>
+        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#settings-modal">⚙ <span data-i18n="settings">Settings</span></button>
     </nav>
 
     <div class="modal fade" id="settings-modal" tabindex="-1" aria-labelledby="settings-modal-label" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="settings-modal-label">Settings</h5>
+                    <h5 class="modal-title" id="settings-modal-label" data-i18n="settings">Settings</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small">Reset which model the app will try to load on next startup.</p>
-                    <button id="reset-model-btn" class="btn btn-sm btn-warning">Reset model selection</button>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" data-i18n="language_label">Language</label>
+                        <select id="language-select" class="form-select form-select-sm">
+                            <option value="en">English</option>
+                            <option value="it">Italiano</option>
+                            <option value="el">Ελληνικά</option>
+                        </select>
+                    </div>
+                    <hr>
+                    <p class="text-muted small" data-i18n="reset_model_label">Reset which model the app will try to load on next startup.</p>
+                    <button id="reset-model-btn" class="btn btn-sm btn-warning" data-i18n="reset_model_btn">Reset model selection</button>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="settings_close">Close</button>
                 </div>
             </div>
         </div>
@@ -33,7 +42,7 @@
     <div class="container mt-4">
 
         <div id="model-download" class="d-none">
-            <p class="mb-1">Downloading model...</p>
+            <p class="mb-1" data-i18n="downloading_model">Downloading model...</p>
             <div class="progress">
                 <div id="download-progress-bar"
                      class="progress-bar progress-bar-striped progress-bar-animated"
@@ -46,13 +55,13 @@
         </div>
 
         <div id="offline-ready" class="d-none alert alert-dismissible alert-success fade show mt-3 mb-0" role="alert">
-            I downloaded all I needed — feel free to go offline.
+            <span data-i18n="offline_ready">I downloaded all I needed — feel free to go offline.</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
         <div id="model-loading" class="d-none text-muted mt-3">
             <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-            <span id="model-loading-text">Loading transcriber model, please wait...</span>
+            <span id="model-loading-text"></span>
         </div>
 
         <div id="device-notice" class="d-none alert alert-dismissible fade show mt-3 mb-0" role="alert">
@@ -61,18 +70,24 @@
         </div>
 
         <div class="mt-4">
-            <h1 class="h4">Offline Whisper</h1>
-            <p class="text-muted">Transcribe your audio and video files privately — everything runs directly in your browser and your files never leave your device.</p>
+            <h1 class="h4" data-i18n="app_title">Local Transcriber</h1>
+            <p class="text-muted" data-i18n="app_description">Transcribe your audio and video files privately — everything runs directly in your browser and your files never leave your device.</p>
         </div>
 
         <div id="file-picker" class="d-none">
-            <label for="audio-file" class="form-label">Please select the file to transcribe</label>
+            <label for="audio-file" class="form-label" data-i18n="file_label">Please select the file to transcribe</label>
             <input type="file" id="audio-file" class="form-control" accept="audio/*,video/*">
-            <button id="transcribe-btn" class="btn btn-primary mt-3 d-none">Transcribe</button>
-            <a id="download-btn" class="btn btn-success mt-3 d-none" download="transcription.txt">Download transcription</a>
+            <button id="transcribe-btn" class="btn btn-primary mt-3 d-none" data-i18n="transcribe_btn">Transcribe</button>
+            <a id="download-btn" class="btn btn-success mt-3 d-none" data-i18n="download_btn">Download transcription</a>
         </div>
 
     </div>
+
+    <footer class="text-center text-muted small py-4 mt-5">
+        <a href="https://ko-fi.com/enricorampazzo" target="_blank" rel="noopener" class="text-muted text-decoration-none" data-i18n="kofi_link">
+            ☕ If you find this useful, consider buying me a coffee
+        </a>
+    </footer>
 
     <script src="js/coi-serviceworker.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
