@@ -96,7 +96,9 @@ async function loadModelWithFallback(modelName) {
     );
 
     try {
-        return await Promise.race([loadModel(null, modelName), timeout]);
+        let v =  await Promise.race([loadModel(null, modelName), timeout]);
+        localStorage.removeItem(MODEL_LOADING_STATE_KEY);
+        return v;
     } catch (err) {
         if (err.message !== 'timeout') throw err;
 
