@@ -3,11 +3,13 @@ import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transfo
 env.allowRemoteModels = true;
 env.useBrowserCache = true;
 
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isLowMemoryDevice = navigator.deviceMemory !== undefined
+    ? navigator.deviceMemory <= 4
+    : /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const MODELS = ['onnx-community/whisper-large-v3-ONNX', 'onnx-community/whisper-medium-ONNX',
-    'onnx-community/whisper-small']
+    'onnx-community/whisper-small', 'onnx-community/whisper-tiny']
 const MODEL_LOADING_STATE_KEY = "MODEL_BEING_LOADED"
-const MODEL_ID = isMobile ? 'onnx-community/whisper-medium-ONNX' : 'onnx-community/whisper-large-v3-ONNX';
+const MODEL_ID = isLowMemoryDevice ? 'onnx-community/whisper-medium-ONNX' : 'onnx-community/whisper-large-v3-ONNX';
 
 let transcriber = null;
 
@@ -100,7 +102,7 @@ async function isModelCached(modelId) {
 async function getModelToLoad(){
     let lastAttemptedLoadModel = localStorage.getItem(MODEL_LOADING_STATE_KEY)
     if(lastAttemptedLoadModel === null){
-        return isMobile ? MODELS[1] : MODELS[0]
+        return isLowMemoryDevice ? MODELS[1] : MODELS[0]
     } else {
         let indexOf = MODELS.indexOf(lastAttemptedLoadModel)
         if(indexOf + 1 === MODELS.length){
@@ -113,4 +115,4 @@ async function getModelToLoad(){
 
 
 
-export { loadModel, transcribe, isModelCached, getModelToLoad, MODEL_ID };
+export { loadModel, transcribe, isModelCached, getModelToLoad, MODEL_ID, MODEL_LOADING_STATE_KEY };

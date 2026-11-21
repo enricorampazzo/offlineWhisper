@@ -7,6 +7,29 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
+    <nav class="navbar bg-body-tertiary border-bottom px-3">
+        <span class="navbar-brand mb-0 h1">Offline Whisper</span>
+        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#settings-modal">⚙ Settings</button>
+    </nav>
+
+    <div class="modal fade" id="settings-modal" tabindex="-1" aria-labelledby="settings-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settings-modal-label">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Reset which model the app will try to load on next startup.</p>
+                    <button id="reset-model-btn" class="btn btn-sm btn-warning">Reset model selection</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container mt-4">
 
         <div id="model-download" class="d-none">
@@ -52,6 +75,7 @@
     </div>
 
     <script src="js/coi-serviceworker.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
     <script type="module" src="js/ui.js"></script>
 </body>
 </html>

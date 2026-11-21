@@ -1,4 +1,4 @@
-import { loadModel, isModelCached, transcribe, getModelToLoad, MODEL_ID } from './transformer.js';
+import { loadModel, isModelCached, transcribe, getModelToLoad, MODEL_ID, MODEL_LOADING_STATE_KEY } from './transformer.js';
 import { fileTypeFromBlob } from 'https://esm.sh/file-type@19';
 
 function showFilePicker() {
@@ -170,5 +170,9 @@ async function setup() {
 
     showFilePicker();
 }
+
+document.getElementById('reset-model-btn').addEventListener('click', () => {
+    localStorage.removeItem(MODEL_LOADING_STATE_KEY);
+});
 
 document.addEventListener('DOMContentLoaded', setup);
