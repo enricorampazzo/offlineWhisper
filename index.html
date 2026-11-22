@@ -39,10 +39,26 @@
         </div>
     </div>
 
+    <div class="modal fade" id="wifi-warning" tabindex="-1" aria-labelledby="wifi-warning-label" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="wifi-warning-label" data-i18n="wifi_warning_title">Not on WiFi</h5>
+                </div>
+                <div class="modal-body">
+                    <p data-i18n="wifi_warning_body">It looks like you are on a mobile connection. This app needs to download large files (up to ~5 GB) the first time it runs. We strongly recommend connecting to WiFi before continuing.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="wifi-warning-dismiss" class="btn btn-primary" data-i18n="wifi_warning_continue">Continue anyway</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container mt-4">
 
         <div id="model-download" class="d-none">
-            <p class="mb-1" data-i18n="downloading_model">Downloading model...</p>
+            <p id="download-label" class="mb-1" data-i18n="downloading_model">Downloading model...</p>
             <div class="progress">
                 <div id="download-progress-bar"
                      class="progress-bar progress-bar-striped progress-bar-animated"
@@ -71,7 +87,13 @@
 
         <div class="mt-4">
             <h1 class="h4" data-i18n="app_title">Local Transcriber</h1>
-            <p class="text-muted" data-i18n="app_description">Transcribe your audio and video files privately — everything runs directly in your browser and your files never leave your device.</p>
+            <p class="text-muted mb-3" data-i18n="app_description">Transcribe audio and video files entirely on your device — no uploads, no cloud.</p>
+            <ul class="text-muted mb-1 d-flex flex-column gap-2">
+                <li data-i18n="app_bullet_private"><strong>Private by design</strong>: your files never leave your device.</li>
+                <li data-i18n="app_bullet_download"><strong>Models are downloaded on first use</strong> — the app automatically picks the best fit for your device. More powerful devices download larger, more accurate models (up to ~5 GB total); less powerful devices get smaller, faster ones (~500 MB). A WiFi connection is recommended.</li>
+                <li data-i18n="app_bullet_performance"><strong>Performance depends on your device</strong>: the app will automatically try lighter models if needed, but older or low-memory devices may have limitations.</li>
+                <li data-i18n="app_bullet_accuracy"><strong>AI models are not perfect</strong>: transcriptions and extracted events may contain mistakes. Larger models tend to be more accurate, but require more resources and can still make errors.</li>
+            </ul>
         </div>
 
         <div id="file-picker" class="d-none">
@@ -79,16 +101,38 @@
             <input type="file" id="audio-file" class="form-control" accept="audio/*,video/*">
             <button id="transcribe-btn" class="btn btn-primary mt-3 d-none" data-i18n="transcribe_btn">Transcribe</button>
             <a id="download-btn" class="btn btn-success mt-3 d-none" data-i18n="download_btn">Download transcription</a>
+
+            <div id="extract-tasks-section" class="d-none mt-3">
+                <button id="extract-tasks-btn" class="btn btn-link p-0 text-secondary text-start">
+                    <span data-i18n="extract_tasks_btn">Extract tasks and events with AI →</span>
+                    <small id="extract-tasks-hint" class="d-block text-muted" data-i18n="extract_tasks_hint">Requires ~1GB download on first use</small>
+                </button>
+                <div id="llm-loading" class="d-none text-muted mt-2">
+                    <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                    <span id="llm-loading-text" data-i18n="llm_loading">Loading AI model...</span>
+                </div>
+                <div id="tasks-result" class="d-none mt-3"></div>
+            </div>
         </div>
 
     </div>
 
     <footer class="text-center text-muted small py-4 mt-5">
-        <a href="https://ko-fi.com/enricorampazzo" target="_blank" rel="noopener" class="text-muted text-decoration-none" data-i18n="kofi_link">
+        <a href="https://ko-fi.com/enricorampazzo" target="_blank" rel="noopener" class="text-muted text-decoration-underline me-3" data-i18n="kofi_link">
             ☕ If you find this useful, consider buying me a coffee
+        </a>
+        <a href="https://www.linkedin.com/in/enricorampazzo/" target="_blank" rel="noopener" class="text-muted text-decoration-underline" data-i18n="linkedin_link">
+            Connect with me on LinkedIn
         </a>
     </footer>
 
+    <script type="importmap">
+    {
+      "imports": {
+        "@mlc-ai/web-llm": "./js/lib/web-llm.js"
+      }
+    }
+    </script>
     <script src="js/coi-serviceworker.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script type="module" src="js/ui.js"></script>

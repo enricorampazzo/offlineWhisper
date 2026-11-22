@@ -1,4 +1,6 @@
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/dist/transformers.min.js';
+import { pipeline, env } from '/js/lib/huggingface_transformers/transformers.min.js';
+import { supportsWebGPU } from './device-utils.js';
+import { toSRT } from './srt-utils.js';
 
 env.allowRemoteModels = true;
 env.useBrowserCache = true;
@@ -8,7 +10,8 @@ const isLowMemoryDevice = navigator.deviceMemory !== undefined
     : /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const MODELS = ['onnx-community/whisper-large-v3-ONNX', 'onnx-community/whisper-medium-ONNX',
     'onnx-community/whisper-small', 'onnx-community/whisper-tiny']
-const MODEL_LOADING_STATE_KEY = "MODEL_BEING_LOADED"
+const MODEL_LOADING_STATE_KEY = "MODEL_BEING_LOADED";
+const MODEL_LAST_SUCCESS_KEY = "MODEL_LAST_SUCCESS";
 const MODEL_ID = isLowMemoryDevice ? 'onnx-community/whisper-medium-ONNX' : 'onnx-community/whisper-large-v3-ONNX';
 
 let transcriber = null;
@@ -35,8 +38,8 @@ function updateProgressBar(progress) {
 
 async function loadModel(onProgress, modelName) {
     if (transcriber) return transcriber;
-    localStorage.setItem(MODEL_LOADING_STATE_KEY, modelName)
-    const device = (await navigator.gpu?.requestAdapter()) ? 'webgpu' : 'wasm';
+    localStorage.setItem(MODEL_LOADING_STATE_KEY, modelName);
+    const device = (await supportsWebGPU()) ? 'webgpu' : 'wasm';
     console.log("using device " + device);
     transcriber = await pipeline(
         'automatic-speech-recognition',
@@ -54,35 +57,17 @@ async function loadModel(onProgress, modelName) {
     );
 
     transcriber.device = device;
+    localStorage.setItem(MODEL_LAST_SUCCESS_KEY, modelName);
     return transcriber;
 }
 
-function formatSRTTime(seconds) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    const ms = Math.round((seconds % 1) * 1000);
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(ms).padStart(3, '0')}`;
-}
-
-function toSRT(chunks) {
-    return chunks
-        .filter(chunk => chunk.timestamp[0] !== null)
-        .map((chunk, i) => {
-            const start = formatSRTTime(chunk.timestamp[0]);
-            const end = formatSRTTime(chunk.timestamp[1] ?? chunk.timestamp[0] + 2);
-            return `${i + 1}\n${start} --> ${end}\n${chunk.text.trim()}\n`;
-        })
-        .join('\n');
-}
-
-async function transcribe(audioData, onProgress, modelName) {
-
+async function transcribe(audioData, onProgress, modelName, onChunk) {
     let model = await loadModel(onProgress, modelName);
     const result = await model(audioData, {
         chunk_length_s: 30,
         stride_length_s: 5,
         return_timestamps: true,
+        chunk_callback: onChunk,
     });
     return toSRT(result.chunks);
 }
@@ -99,20 +84,22 @@ async function isModelCached(modelId) {
     return false;
 }
 
-async function getModelToLoad(){
-    let lastAttemptedLoadModel = localStorage.getItem(MODEL_LOADING_STATE_KEY)
-    if(lastAttemptedLoadModel === null){
-        return isLowMemoryDevice ? MODELS[1] : MODELS[0]
-    } else {
-        let indexOf = MODELS.indexOf(lastAttemptedLoadModel)
-        if(indexOf + 1 === MODELS.length){
-            return null
-        }
-        return MODELS[indexOf + 1]
+async function getModelToLoad() {
+    const lastAttempted = localStorage.getItem(MODEL_LOADING_STATE_KEY);
+    if (lastAttempted === null) {
+        const lastSuccess = localStorage.getItem(MODEL_LAST_SUCCESS_KEY);
+        if (lastSuccess && MODELS.includes(lastSuccess)) return lastSuccess;
+        return isLowMemoryDevice ? MODELS[1] : MODELS[0];
     }
-
+    const indexOf = MODELS.indexOf(lastAttempted);
+    if (indexOf + 1 === MODELS.length) return null;
+    return MODELS[indexOf + 1];
 }
 
+async function unloadWhisper() {
+    if (!transcriber) return;
+    try { await transcriber.model?.dispose?.(); } catch (_) { /* device may already be lost */ }
+    transcriber = null;
+}
 
-
-export { loadModel, transcribe, isModelCached, getModelToLoad, MODEL_ID, MODEL_LOADING_STATE_KEY };
+export { loadModel, unloadWhisper, transcribe, isModelCached, getModelToLoad, MODEL_ID, MODEL_LOADING_STATE_KEY, MODEL_LAST_SUCCESS_KEY };
