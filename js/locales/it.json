@@ -1,7 +1,7 @@
 {
     "app_title": "Trascrittore Locale",
     "app_description": "Trascrivi file audio e video direttamente sul tuo dispositivo — nessun caricamento, nessun cloud.",
-    "app_bullet_private": "Privato per design: i tuoi file non lasciano mai il tuo dispositivo.",
+    "app_bullet_private": "La tua privacy innanzitutto: i tuoi file non lasciano mai il tuo dispositivo.",
     "app_bullet_download": "<strong>I modelli vengono scaricati al primo utilizzo</strong> — l'app sceglie automaticamente quello più adatto al tuo dispositivo. I dispositivi più potenti scaricano modelli più grandi e accurati (fino a ~5 GB in totale); quelli meno potenti ricevono modelli più piccoli e veloci (~500 MB). Si consiglia una connessione WiFi.",
     "app_bullet_performance": "Le prestazioni dipendono dal tuo dispositivo: l'app proverà automaticamente modelli più leggeri se necessario, ma su dispositivi vecchi o con poca memoria alcune funzionalità potrebbero non essere disponibili.",
     "app_bullet_accuracy": "I modelli di IA non sono infallibili: le trascrizioni e gli eventi estratti possono contenere errori. I modelli più grandi tendono ad essere più accurati, ma richiedono più risorse e possono comunque sbagliare.",
