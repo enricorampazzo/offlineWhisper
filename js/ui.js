@@ -331,7 +331,11 @@ async function setup() {
     const cached = await isModelCached(modelToLoad);
 
     if (!cached) {
-        if (navigator.connection?.type === 'cellular') {
+        const conn = navigator.connection;
+        const safeTypes = ['wifi', 'ethernet', 'wimax', 'unknown', undefined];
+        const isCellular = conn?.type === 'cellular' ||
+            (!safeTypes.includes(conn?.type) && conn?.effectiveType && ['slow-2g', '2g', '3g', '4g'].includes(conn.effectiveType));
+        if (isCellular) {
             await new Promise(resolve => {
                 const modal = new bootstrap.Modal(document.getElementById('wifi-warning'), { keyboard: false, backdrop: 'static' });
                 document.getElementById('wifi-warning-dismiss').addEventListener('click', () => {
@@ -400,6 +404,12 @@ async function setup() {
 function init() {
     applyTranslations();
     setup();
+
+    ['settings-modal', 'wifi-warning'].forEach(id => {
+        document.getElementById(id).addEventListener('hide.bs.modal', () => {
+            document.activeElement?.blur();
+        });
+    });
 
     document.getElementById('reset-model-btn').addEventListener('click', () => {
         localStorage.removeItem(MODEL_LOADING_STATE_KEY);
